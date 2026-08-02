@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tổng quan (dữ liệu thật) – Grammar Master</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#faf9ff;--text:#241541;--muted:#9c93b5;--primary:#8b7ff5;--primary-dark:#7267e0;
+    --green:#4cd273;--green-dark:#22b573;--shadow:0 8px 20px rgba(80,60,140,.07);}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text);}
+  h1,h2,h3{font-family:'Baloo 2';margin:0;}
+  a{text-decoration:none;color:inherit;}
+  .page{max-width:480px;margin:0 auto;padding:0 14px 40px;}
+
+  .notice{background:#fff6e3;color:#8a5a12;font-size:.76rem;font-weight:600;padding:10px 14px;text-align:center;}
+
+  .dash-top{display:flex;align-items:center;gap:12px;margin:16px 0 14px;}
+  .avatar{width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#bfe3ff,#8fc9ec);
+    display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex:0 0 46px;}
+  .who h1{font-size:1.1rem;}
+  .who p{margin:2px 0 0;font-size:.78rem;color:var(--muted);}
+
+  .hero-banner{background:linear-gradient(135deg,#a79bff,#7267e0);color:#fff;border-radius:26px;
+    padding:20px 20px 18px;margin-bottom:16px;position:relative;overflow:hidden;box-shadow:0 14px 28px rgba(114,103,224,.25);}
+  .hero-banner .deco{position:absolute;right:-6px;bottom:-10px;font-size:4.5rem;opacity:.18;transform:rotate(-8deg);}
+  .hero-label-row{display:flex;justify-content:space-between;font-size:.76rem;font-weight:600;opacity:.9;margin-bottom:6px;}
+  .hero-track{height:9px;background:rgba(255,255,255,.28);border-radius:999px;overflow:hidden;}
+  .hero-fill{height:100%;border-radius:999px;background:#fff;}
+  .hero-bottom-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:.82rem;}
+  .hero-bottom-row .big-pct{font-family:'Baloo 2';font-weight:800;font-size:1.3rem;}
+
+  .section-label{display:flex;justify-content:space-between;align-items:center;margin:18px 4px 10px;font-weight:700;font-size:.92rem;}
+  .section-label a{font-size:.78rem;color:var(--primary-dark);font-weight:700;}
+
+  .continue-card{background:linear-gradient(135deg,#a79bff,#7267e0);color:#fff;border-radius:22px;padding:16px 18px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;box-shadow:0 10px 22px rgba(114,103,224,.22);}
+  .continue-card .label{font-size:.72rem;opacity:.85;margin-bottom:2px;}
+  .continue-card h3{font-size:1.02rem;margin-bottom:10px;line-height:1.3;}
+  .continue-card .icon{font-size:2.1rem;flex:0 0 auto;}
+  .mini-btn{display:inline-block;background:#fff;color:var(--primary-dark);font-weight:800;font-size:.78rem;padding:6px 14px;border-radius:999px;}
+
+  .stage-strip{display:flex;gap:14px;overflow-x:auto;padding:2px 2px 6px;}
+  .stage-strip .item{flex:0 0 auto;text-align:center;width:70px;}
+  .stage-strip .bubble{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Baloo 2';font-weight:800;margin:0 auto 6px;font-size:.95rem;}
+  .stage-strip .completed .bubble{background:#e9f9ec;color:var(--green-dark);}
+  .stage-strip .current .bubble{background:var(--primary);color:#fff;box-shadow:0 0 0 4px rgba(139,127,245,.22);}
+  .stage-strip .locked .bubble{background:#f1eefb;color:#c7c1de;}
+  .stage-strip .name{font-size:.64rem;color:var(--muted);line-height:1.2;}
+
+  .stat-row{display:flex;gap:10px;margin:0 0 6px;}
+  .stat-box{flex:1;background:#fff;border-radius:16px;padding:13px 8px;text-align:center;box-shadow:var(--shadow);}
+  .stat-box .ic{font-size:1.2rem;margin-bottom:4px;}
+  .stat-box .val{font-weight:800;font-size:.98rem;}
+  .stat-box .lbl{font-size:.64rem;color:var(--muted);margin-top:2px;}
+
+  .streak-strip{margin-top:16px;background:#fff6e3;border-radius:20px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);}
+  .streak-strip .ic{font-size:2rem;}
+  .streak-strip .title{font-weight:800;font-size:.92rem;color:#8a5a12;}
+  .streak-strip .sub{font-size:.74rem;color:#b98a3a;margin-top:2px;}
+
+  .loading{color:var(--muted);font-size:.86rem;padding:30px 0;text-align:center;}
+
+  .login-wrap{max-width:340px;margin:60px auto;padding:0 16px;text-align:center;}
+  .login-wrap .emoji{font-size:2.6rem;margin-bottom:10px;}
+  .login-wrap h2{font-family:'Baloo 2';font-size:1.2rem;margin-bottom:6px;}
+  .login-wrap p{color:var(--muted);font-size:.84rem;margin:0 0 18px;}
+  .login-card{background:#fff;border-radius:20px;padding:20px;box-shadow:var(--shadow);text-align:left;}
+  .login-card label{display:block;font-size:.8rem;font-weight:700;color:var(--muted);margin:0 0 6px;}
+  .login-card select,.login-card input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #e5e0f7;font-size:.92rem;margin-bottom:14px;box-sizing:border-box;font-family:inherit;}
+  .login-card button{width:100%;border:none;border-radius:12px;padding:12px;font-weight:800;font-size:.92rem;background:var(--primary);color:#fff;cursor:pointer;}
+  .login-err{color:#e0578a;font-size:.8rem;font-weight:600;margin-top:10px;display:none;}
+  .logout-link{position:fixed;top:14px;right:14px;background:#fff;box-shadow:var(--shadow);border-radius:999px;padding:6px 14px;font-size:.72rem;font-weight:700;color:var(--muted);z-index:20;}
+</style>
+</head>
+<body>
+
+<div class="notice">🔌 Danh sách chặng bên dưới lấy trực tiếp từ Supabase. Điểm XP / streak / quiz vẫn là số mẫu vì chưa có bảng học sinh riêng.</div>
+
+<div class="page" id="content">
+  <p class="loading">Đang tải dữ liệu thật...</p>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://zwkphtxotqdzilotiwpf.supabase.co';
+  const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3a3BodHhvdHFkemlsb3Rpd3BmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MDUwNDgsImV4cCI6MjEwMTE4MTA0OH0.ftxH01_FlELoc1m9cPunoMNcxvKeEDnJ-ccu26IHxjg';
+
+  async function rpc(fn, body){
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':ANON_KEY,'Authorization':`Bearer ${ANON_KEY}`},
+      body: JSON.stringify(body)
+    });
+    return res.json();
+  }
+
+  async function renderLogin(){
+    const box = document.getElementById('content');
+    const students = await rpc('list_students', {});
+    box.innerHTML = `
+      <div class="login-wrap">
+        <div class="emoji">🔐</div>
+        <h2>Đăng nhập</h2>
+        <p>Chọn tên em và nhập mật khẩu để vào học nhé!</p>
+        <div class="login-card">
+          <label>Tên học sinh</label>
+          <select id="loginName">
+            <option value="">-- Chọn tên --</option>
+            ${students.map(s=>`<option value="${s.name}">${s.name}</option>`).join('')}
+          </select>
+          <label>Mật khẩu</label>
+          <input type="password" id="loginPin" placeholder="Nhập mật khẩu">
+          <button onclick="doLogin()">Đăng nhập</button>
+          <div class="login-err" id="loginErr">❌ Sai tên hoặc mật khẩu, thử lại nhé.</div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function doLogin(){
+    const name = document.getElementById('loginName').value;
+    const pin = document.getElementById('loginPin').value;
+    const errBox = document.getElementById('loginErr');
+    if(!name || !pin){ errBox.style.display='block'; errBox.textContent='Vui lòng chọn tên và nhập mật khẩu.'; return; }
+    const res = await rpc('login_student', {p_name: name, p_pin: pin});
+    if(res && res.message){ errBox.style.display='block'; errBox.textContent='❌ Sai tên hoặc mật khẩu, thử lại nhé.'; return; }
+    localStorage.setItem('gm_student_id', res.id);
+    localStorage.setItem('gm_student_name', res.name);
+    await rpc('ensure_first_stage_unlocked', {p_student_id: res.id});
+    init();
+  }
+
+  function logout(){
+    localStorage.removeItem('gm_student_id');
+    localStorage.removeItem('gm_student_name');
+    init();
+  }
+
+  function buildStatusMap(progressRows){
+    const map = {};
+    (progressRows||[]).forEach(p => { map[p.stage_id] = p.status; }); // 'unlocked' | 'completed'
+    return map;
+  }
+  function statusForStage(stage, map){
+    const st = map[stage.id];
+    if(!st) return 'locked';
+    return st === 'completed' ? 'completed' : 'current';
+  }
+
+  async function init(){
+    const studentId = localStorage.getItem('gm_student_id');
+    const studentName = localStorage.getItem('gm_student_name');
+    if(!studentId){ renderLogin(); return; }
+
+    const stages = await rpc('list_stages', {});
+    const progressRows = await rpc('get_student_progress', {p_student_id: parseInt(studentId)});
+    const statusMap = buildStatusMap(progressRows);
+    const box = document.getElementById('content');
+    const currentIndex = stages.findIndex(s => statusForStage(s, statusMap) === 'current');
+    const current = stages[currentIndex] || stages[0];
+    const doneCount = stages.filter(s => statusForStage(s, statusMap)==='completed').length;
+    const pct = Math.round(doneCount / stages.length * 100);
+
+    let html = `
+      <div class="logout-link" onclick="logout()">Đăng xuất</div>
+      <div class="dash-top">
+        <div class="avatar">🧒</div>
+        <div class="who"><h1>Xin chào, ${studentName}! 👋</h1><p>Cố gắng học mỗi ngày nhé!</p></div>
+      </div>
+
+      <div class="hero-banner">
+        <div class="deco">🗺️</div>
+        <div class="hero-label-row"><span>Tiến độ hành trình</span><span>${doneCount} / ${stages.length} chặng</span></div>
+        <div class="hero-track"><div class="hero-fill" style="width:${pct}%;"></div></div>
+        <div class="hero-bottom-row"><span>Bạn đang học rất tốt! 💪</span><span class="big-pct">${pct}%</span></div>
+      </div>
+
+      <div class="section-label">Tiếp tục học</div>
+      <a href="xem-chang.html?stage=${current.order_no}">
+        <div class="continue-card">
+          <div><p class="label">${current.badge_label}</p><h3>${current.title}</h3><span class="mini-btn">Học tiếp</span></div>
+          <div class="icon">📖</div>
+        </div>
+      </a>
+
+      <div class="section-label">Hành trình ${stages.length} chặng <a href="xem-hanh-trinh.html">Xem tất cả ›</a></div>
+      <div class="stage-strip">
+        ${stages.slice(0,6).map((s) => {
+          const st = statusForStage(s, statusMap);
+          const inner = st==='completed' ? '✓' : s.order_no;
+          return `<a class="item ${st}" href="xem-chang.html?stage=${s.order_no}">
+            <div class="bubble">${inner}</div><div class="name">${s.title}</div></a>`;
+        }).join('')}
+      </div>
+
+      <div class="section-label">Thống kê nhanh <span style="font-weight:400;color:var(--muted);font-size:.7rem;">(số mẫu)</span></div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="ic">📘</div><div class="val">${doneCount}/${stages.length}</div><div class="lbl">Bài học</div></div>
+        <div class="stat-box"><div class="ic">🎯</div><div class="val">45</div><div class="lbl">Quiz đã làm</div></div>
+        <div class="stat-box"><div class="ic">⭐</div><div class="val">680</div><div class="lbl">Điểm XP</div></div>
+      </div>
+
+      <div class="streak-strip">
+        <div class="ic">🔥</div>
+        <div><div class="title">7 ngày liên tiếp (mẫu)</div><div class="sub">Học hôm nay để giữ chuỗi nhé!</div></div>
+      </div>
+    `;
+    box.innerHTML = html;
+  }
+  init();
+</script>
+</body>
+</html>
