@@ -91,7 +91,13 @@
       headers:{'Content-Type':'application/json','apikey':ANON_KEY,'Authorization':`Bearer ${ANON_KEY}`},
       body: JSON.stringify(body)
     });
-    return res.json();
+    let data;
+    try{ data = await res.json(); } catch(e){ data = null; }
+    if(!res.ok){
+      const msg = (data && data.message) ? data.message : `Lỗi máy chủ (${res.status})`;
+      throw new Error(msg);
+    }
+    return data;
   }
 
   async function renderLogin(){
@@ -110,7 +116,7 @@
           </select>
           <label>Mật khẩu</label>
           <input type="password" id="loginPin" placeholder="Nhập mật khẩu">
-          <button onclick="doLogin()">Đăng nhập</button>
+          <button id="loginBtn" onclick="doLogin()">Đăng nhập</button>
           <div class="login-err" id="loginErr">❌ Sai tên hoặc mật khẩu, thử lại nhé.</div>
         </div>
       </div>
@@ -121,13 +127,29 @@
     const name = document.getElementById('loginName').value;
     const pin = document.getElementById('loginPin').value;
     const errBox = document.getElementById('loginErr');
+    const btn = document.getElementById('loginBtn');
     if(!name || !pin){ errBox.style.display='block'; errBox.textContent='Vui lòng chọn tên và nhập mật khẩu.'; return; }
-    const res = await rpc('login_student', {p_name: name, p_pin: pin});
-    if(res && res.message){ errBox.style.display='block'; errBox.textContent='❌ Sai tên hoặc mật khẩu, thử lại nhé.'; return; }
-    localStorage.setItem('gm_student_id', res.id);
-    localStorage.setItem('gm_student_name', res.name);
-    await rpc('ensure_first_stage_unlocked', {p_student_id: res.id});
-    init();
+    try{
+      btn.disabled = true; btn.textContent = 'Đang kiểm tra...';
+      const res = await rpc('login_student', {p_name: name, p_pin: pin});
+      if(!res || !res.id){
+        errBox.style.display='block';
+        errBox.textContent = '❌ Sai tên hoặc mật khẩu, thử lại nhé.';
+        btn.disabled = false; btn.textContent = 'Đăng nhập';
+        return;
+      }
+      localStorage.setItem('gm_student_id', res.id);
+      localStorage.setItem('gm_student_name', res.name);
+      await rpc('ensure_first_stage_unlocked', {p_student_id: res.id});
+      init();
+    } catch(err){
+      errBox.style.display='block';
+      const isBadLogin = err && err.message && err.message.includes('invalid_login');
+      errBox.textContent = isBadLogin
+        ? '❌ Sai tên hoặc mật khẩu, thử lại nhé.'
+        : '❌ Có lỗi kết nối, thử lại nhé. (' + (err && err.message ? err.message : err) + ')';
+      btn.disabled = false; btn.textContent = 'Đăng nhập';
+    }
   }
 
   function logout(){
