@@ -263,9 +263,16 @@
     return res.json();
   }
 
-  function unlock(){
-    adminPassword = document.getElementById('pw').value;
-    if(!adminPassword){ document.getElementById('authMsg').innerHTML = '<span class="err">Nhập mật khẩu trước đã.</span>'; return; }
+  async function unlock(){
+    const pw = document.getElementById('pw').value;
+    if(!pw){ document.getElementById('authMsg').innerHTML = '<span class="err">Nhập mật khẩu trước đã.</span>'; return; }
+    document.getElementById('authMsg').innerHTML = 'Đang kiểm tra mật khẩu...';
+    const test = await rpc('admin_get_students_overview', {p_password: pw});
+    if(test && test.message){
+      document.getElementById('authMsg').innerHTML = '<span class="err">❌ Sai mật khẩu, thử lại nhé.</span>';
+      return;
+    }
+    adminPassword = pw;
     document.getElementById('authMsg').innerHTML = '';
     document.getElementById('app').style.display = 'block';
     loadAllStageSelects();

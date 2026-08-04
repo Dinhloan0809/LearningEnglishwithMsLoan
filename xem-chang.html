@@ -81,6 +81,10 @@
 
     const grammarQ = await rpc('get_quiz_questions', {p_stage_order: stageOrder, p_quiz_type:'grammar'});
     const vocabQ = await rpc('get_quiz_questions', {p_stage_order: stageOrder, p_quiz_type:'vocab'});
+    const bestGrammar = await rpc('get_best_score', {p_student_id: parseInt(studentId), p_stage_order: stageOrder, p_quiz_type:'grammar'});
+    const bestVocab = await rpc('get_best_score', {p_student_id: parseInt(studentId), p_stage_order: stageOrder, p_quiz_type:'vocab'});
+    const bg = (bestGrammar && bestGrammar[0]) || null;
+    const bv = (bestVocab && bestVocab[0]) || null;
     const vocabDay1 = await rpc('get_vocabulary', {p_stage_order: stageOrder, p_day_number: 1});
 
     const hasVocab = (vocabDay1||[]).length > 0;
@@ -127,10 +131,18 @@
             <div class="title">4. Quiz</div>
             <div class="quiz-parts">
               ${grammarQ && grammarQ.length
-                ? `<a class="quiz-pill" href="xem-quiz.html?stage=${stageOrder}&type=grammar"><div class="qn">Ngữ pháp</div><div class="qs">${grammarQ.length} câu</div></a>`
+                ? `<a class="quiz-pill" href="xem-quiz.html?stage=${stageOrder}&type=grammar">
+                     <div class="qn">Ngữ pháp</div>
+                     <div class="qs">${bg ? bg.best_score+'/'+bg.best_total : grammarQ.length+' câu'}</div>
+                     <div style="font-size:.62rem;color:#9c93b5;margin-top:2px;">${bg ? 'Cao nhất ('+bg.best_pct+'%)' : 'Chưa làm'}</div>
+                   </a>`
                 : `<div class="quiz-pill" style="opacity:.5;"><div class="qn">Ngữ pháp</div><div class="qs">Chưa có</div></div>`}
               ${vocabQ && vocabQ.length
-                ? `<a class="quiz-pill" href="xem-quiz.html?stage=${stageOrder}&type=vocab"><div class="qn">Từ vựng</div><div class="qs">${vocabQ.length} câu</div></a>`
+                ? `<a class="quiz-pill" href="xem-quiz.html?stage=${stageOrder}&type=vocab">
+                     <div class="qn">Từ vựng</div>
+                     <div class="qs">${bv ? bv.best_score+'/'+bv.best_total : vocabQ.length+' câu'}</div>
+                     <div style="font-size:.62rem;color:#9c93b5;margin-top:2px;">${bv ? 'Cao nhất ('+bv.best_pct+'%)' : 'Chưa làm'}</div>
+                   </a>`
                 : `<div class="quiz-pill" style="opacity:.5;"><div class="qn">Từ vựng</div><div class="qs">Chưa có</div></div>`}
             </div>
           </div>

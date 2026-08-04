@@ -155,6 +155,7 @@
     let unlockNote = '';
     if(currentStudent){
       const r = await rpc('complete_stage_quiz', {p_student_id: currentStudent.id, p_stage_order: stageOrder, p_score_pct: pct});
+      rpc('log_quiz_result', {p_student_id: currentStudent.id, p_stage_order: stageOrder, p_quiz_type: quizType, p_score: score, p_total: questions.length});
       if(r.passed && r.next_unlocked) unlockNote = `<p style="color:#22b573;font-weight:700;font-size:.86rem;margin-top:-6px;margin-bottom:10px;">🎉 Đã mở khoá chặng tiếp theo!</p>`;
       else if(r.passed) unlockNote = `<p style="color:#22b573;font-weight:700;font-size:.86rem;margin-top:-6px;margin-bottom:10px;">✅ Đã hoàn thành chặng này!</p>`;
       else if(pct < 50) unlockNote = `<p style="color:#e0578a;font-weight:600;font-size:.82rem;margin-top:-6px;margin-bottom:10px;">Cần đạt từ 50% trở lên để mở khoá chặng tiếp theo — làm lại thử nhé!</p>`;
