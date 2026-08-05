@@ -135,7 +135,7 @@
       <div class="card" style="background:#ffe8f0;">
         <label>📂 Import nhiều từ vựng cùng lúc từ file Excel/CSV</label>
         <p class="msg" style="margin-top:0;">
-          File cần đúng 5 cột theo thứ tự: <strong>Ngày | Icon | Từ tiếng Anh | Nghĩa tiếng Việt | Câu ví dụ</strong> — dòng đầu là tiêu đề sẽ tự bỏ qua. Mỗi ngày chỉ hiển thị tối đa 5 từ trên thẻ, từ thứ 6 trở đi trong cùng 1 ngày sẽ không hiện ra. Từ được nhập vào đúng Chặng đang chọn ở khung dưới.
+          File cần đúng 6 cột theo thứ tự: <strong>Ngày | Icon | Từ tiếng Anh | Phiên âm | Nghĩa tiếng Việt | Câu ví dụ</strong> — dòng đầu là tiêu đề sẽ tự bỏ qua. Cột phiên âm có thể để trống nếu chưa có. Mỗi ngày chỉ hiển thị tối đa 5 từ trên thẻ, từ thứ 6 trở đi trong cùng 1 ngày sẽ không hiện ra. Từ được nhập vào đúng Chặng đang chọn ở khung dưới.
         </p>
         <input type="file" id="tv_importFile" accept=".xlsx,.xls,.csv">
         <button class="secondary" onclick="previewImportVocab()">👀 Xem trước</button>
@@ -162,7 +162,7 @@
       <div class="card" style="background:#f1ecff;">
         <label>📂 Import nhiều câu hỏi cùng lúc từ file Excel/CSV</label>
         <p class="msg" style="margin-top:0;">
-          File cần đúng 6 cột theo thứ tự: <strong>Câu hỏi | Đáp án A | Đáp án B | Đáp án C | Đáp án D | Đáp án đúng (A/B/C/D)</strong> — dòng đầu tiên là tiêu đề sẽ tự bỏ qua. Câu hỏi sẽ được nhập vào đúng Chặng + Loại quiz đang chọn ở khung dưới.
+          File cần đúng 7 cột theo thứ tự: <strong>Câu hỏi | Đáp án A | Đáp án B | Đáp án C | Đáp án D | Đáp án đúng (A/B/C/D) | Giải thích</strong> — cột 7 là phần giải thích lý do vì sao đáp án đó đúng, sẽ hiện cho học sinh xem sau khi trả lời (có thể để trống nếu chưa có). Dòng đầu tiên là tiêu đề sẽ tự bỏ qua. Câu hỏi sẽ được nhập vào đúng Chặng + Loại quiz đang chọn ở khung dưới.
         </p>
         <input type="file" id="qz_importFile" accept=".xlsx,.xls,.csv">
         <button class="secondary" onclick="previewImportFile()">👀 Xem trước</button>
@@ -197,6 +197,8 @@
         </div>
         <label>Đáp án đúng</label>
         <select id="qz_correct"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select>
+        <label>Giải thích (vì sao đáp án đúng — học sinh sẽ thấy sau khi trả lời, có thể để trống)</label>
+        <textarea id="qz_explanation" rows="2"></textarea>
         <button class="secondary small" onclick="resetQuizForm()">+ Thêm câu mới</button>
         <button class="primary" onclick="saveQuizQuestion()">💾 Lưu câu hỏi</button>
         <p class="msg" id="qz_saveMsg"></p>
@@ -234,12 +236,21 @@
           <label style="margin:0;">👥 Tình hình học tập từng học sinh</label>
           <button class="secondary small" onclick="loadStudentsOverview()">🔄 Tải lại</button>
         </div>
+        <p class="msg" style="margin-top:-6px;">Bấm vào tên học sinh để xem chi tiết.</p>
         <div id="hs_overview"><p class="msg">Bấm "Tải lại" để xem dữ liệu.</p></div>
+      </div>
+
+      <div class="card" id="hs_detailCard" style="display:none;">
+        <div class="card-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <label style="margin:0;" id="hs_detailTitle">Chi tiết học sinh</label>
+          <button class="secondary small" onclick="closeStudentDetail()">✕ Đóng</button>
+        </div>
+        <div id="hs_detailBody"><p class="msg">Đang tải...</p></div>
       </div>
 
       <div class="card">
         <div class="card-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <label style="margin:0;">⚠️ Các câu hay sai nhất</label>
+          <label style="margin:0;">⚠️ Các câu hay sai nhất (cả lớp)</label>
           <button class="secondary small" onclick="loadWrongQuestions()">🔄 Tải lại</button>
         </div>
         <div id="hs_wrong"><p class="msg">Bấm "Tải lại" để xem dữ liệu.</p></div>
@@ -409,18 +420,19 @@
             sort_order: dayCounters[day],
             icon: String(r[1]||'').trim(),
             word: String(r[2]||'').trim(),
-            meaning: String(r[3]||'').trim(),
-            example_sentence: String(r[4]||'').trim()
+            phonetic: String(r[3]||'').trim().replace(/^\/|\/$/g,''),
+            meaning: String(r[4]||'').trim(),
+            example_sentence: String(r[5]||'').trim()
           };
         });
 
         if(parsedVocab.length === 0){
           box.innerHTML = '';
-          msg.innerHTML = '<span class="err">Không đọc được từ nào — kiểm tra lại đúng 5 cột.</span>';
+          msg.innerHTML = '<span class="err">Không đọc được từ nào — kiểm tra lại đúng 6 cột.</span>';
           return;
         }
         box.innerHTML = `<p class="msg"><strong>Tìm thấy ${parsedVocab.length} từ hợp lệ:</strong></p>` +
-          parsedVocab.slice(0,6).map(v => `<div class="qlist-item"><div class="qtext">Ngày ${v.day_number} · ${v.icon} ${v.word} — ${v.meaning}</div></div>`).join('') +
+          parsedVocab.slice(0,6).map(v => `<div class="qlist-item"><div class="qtext">Ngày ${v.day_number} · ${v.icon} ${v.word}${v.phonetic ? ' /'+v.phonetic+'/' : ''} — ${v.meaning}</div></div>`).join('') +
           (parsedVocab.length > 6 ? `<p class="msg">... và ${parsedVocab.length-6} từ khác</p>` : '') +
           (overflowWarning ? `<p class="msg"><span class="err">⚠️ Có ngày quá 5 từ — từ dư sẽ được lưu nhưng không hiện trên thẻ (chỉ hiện tối đa 5 từ/ngày).</span></p>` : '');
         document.getElementById('tv_importConfirmBtn').style.display = 'inline-block';
@@ -484,6 +496,11 @@
         <input type="text" class="icon-input" id="tv_icon_${slot}" value="${existing.icon||''}"
           placeholder="icon" oninput="document.getElementById('tv_iconPreview_${slot}').textContent = this.value || '❓';">
         <input type="text" class="word-input" id="tv_word_${slot}" value="${existing.word||''}" placeholder="từ tiếng Anh">
+        <div style="display:flex; align-items:center; gap:4px;">
+          <span style="color:#9c93b5; font-weight:700; font-style:italic;">/</span>
+          <input type="text" class="word-input" id="tv_phonetic_${slot}" value="${(existing.phonetic||'').replace(/^\/|\/$/g,'')}" placeholder="rʌn" style="font-style:italic; flex:1;">
+          <span style="color:#9c93b5; font-weight:700; font-style:italic;">/</span>
+        </div>
         <input type="text" class="meaning-input" id="tv_meaning_${slot}" value="${existing.meaning||''}" placeholder="nghĩa tiếng Việt">
         <input type="text" class="example-input" id="tv_example_${slot}" value="${existing.example_sentence||''}" placeholder="câu ví dụ">
         <button class="primary small" onclick="saveVocabSlot(${slot})">💾 Lưu</button>
@@ -503,6 +520,7 @@
       p_day_number: parseInt(document.getElementById('tv_day').value),
       p_sort_order: slot,
       p_word: document.getElementById('tv_word_'+slot).value,
+      p_phonetic: document.getElementById('tv_phonetic_'+slot).value.trim().replace(/^\/|\/$/g,'') || null,
       p_meaning: document.getElementById('tv_meaning_'+slot).value,
       p_example_sentence: document.getElementById('tv_example_'+slot).value,
       p_icon: document.getElementById('tv_icon_'+slot).value,
@@ -597,16 +615,17 @@
           optionB: String(r[2]||'').trim(),
           optionC: String(r[3]||'').trim(),
           optionD: String(r[4]||'').trim(),
-          correct: String(r[5]||'').trim().toUpperCase()
+          correct: String(r[5]||'').trim().toUpperCase(),
+          explanation: String(r[6]||'').trim()
         })).filter(q => q.question && ['A','B','C','D'].includes(q.correct));
 
         if(parsedQuestions.length === 0){
           box.innerHTML = '';
-          msg.innerHTML = '<span class="err">Không đọc được câu hỏi hợp lệ nào — kiểm tra lại đúng 6 cột và cột "Đáp án đúng" phải là A/B/C/D.</span>';
+          msg.innerHTML = '<span class="err">Không đọc được câu hỏi hợp lệ nào — kiểm tra lại đúng 7 cột và cột "Đáp án đúng" phải là A/B/C/D.</span>';
           return;
         }
         box.innerHTML = `<p class="msg"><strong>Tìm thấy ${parsedQuestions.length} câu hỏi hợp lệ:</strong></p>` +
-          parsedQuestions.slice(0,5).map(q => `<div class="qlist-item"><div class="qtext">${q.question} <em>(đúng: ${q.correct})</em></div></div>`).join('') +
+          parsedQuestions.slice(0,5).map(q => `<div class="qlist-item"><div class="qtext">${q.question} <em>(đúng: ${q.correct})</em>${q.explanation ? `<br><span style="color:#8b7ff5;font-size:.85em;">Giải thích: ${q.explanation}</span>` : ''}</div></div>`).join('') +
           (parsedQuestions.length > 5 ? `<p class="msg">... và ${parsedQuestions.length-5} câu khác</p>` : '');
         document.getElementById('qz_importConfirmBtn').style.display = 'inline-block';
         msg.innerHTML = '';
@@ -673,6 +692,7 @@
     document.getElementById('qz_optC').value = opts.find(o=>o.key==='C')?.text || '';
     document.getElementById('qz_optD').value = opts.find(o=>o.key==='D')?.text || '';
     document.getElementById('qz_correct').value = q.correct_key;
+    document.getElementById('qz_explanation').value = q.explanation || '';
   }
 
   function resetQuizForm(){
@@ -683,6 +703,7 @@
     document.getElementById('qz_optC').value = '';
     document.getElementById('qz_optD').value = '';
     document.getElementById('qz_correct').value = 'A';
+    document.getElementById('qz_explanation').value = '';
   }
 
   async function saveQuizQuestion(){
@@ -702,7 +723,8 @@
       p_quiz_type: document.getElementById('qz_type').value,
       p_question: document.getElementById('qz_question').value,
       p_options: options,
-      p_correct_key: document.getElementById('qz_correct').value
+      p_correct_key: document.getElementById('qz_correct').value,
+      p_explanation: document.getElementById('qz_explanation').value
     });
     if(result.status==='ok'){
       msg.innerHTML = '<span class="ok">✅ Đã lưu thành công!</span>';
@@ -804,7 +826,7 @@
         <tbody>
           ${rows.map(r => `
             <tr>
-              <td>${r.avatar||'🧒'} ${r.name}</td>
+              <td><a href="javascript:void(0)" onclick="openStudentDetail(${r.student_id}, '${r.name.replace(/'/g,"\\'")}', '${(r.avatar||'🧒').replace(/'/g,"\\'")}')" style="color:var(--primary,#7267e0);font-weight:700;text-decoration:underline;cursor:pointer;">${r.avatar||'🧒'} ${r.name}</a></td>
               <td>${r.pin}</td>
               <td>${fmtMinutes(r.total_minutes)}</td>
               <td>${r.sessions_count}</td>
@@ -813,6 +835,85 @@
             </tr>`).join('')}
         </tbody>
       </table>`;
+  }
+
+  const STAGE_STATUS_LABEL = {completed:'✅ Hoàn thành', unlocked:'🔓 Đang học'};
+
+  function scoreCell(score, total, pct){
+    if(score===null || score===undefined) return '<span style="color:var(--muted);">Chưa làm</span>';
+    return `${score}/${total} <span style="color:var(--muted);">(${pct}%)</span>`;
+  }
+
+  function renderActivityChart(rows){
+    const maxMin = Math.max(1, ...rows.map(r=>Number(r.minutes)||0));
+    const w = 640, h = 130, barW = w/rows.length, pad = 4;
+    const bars = rows.map((r,i)=>{
+      const val = Number(r.minutes)||0;
+      const barH = Math.max(2, (val/maxMin) * (h-30));
+      const x = i*barW + pad;
+      const y = h - 20 - barH;
+      const dd = String(r.day).slice(8,10);
+      const hasQuiz = (r.quiz_attempts||0) > 0;
+      return `
+        <rect x="${x}" y="${y}" width="${barW-pad*2}" height="${barH}" rx="3" fill="${hasQuiz ? '#8b7ff5' : '#d9d2f7'}"></rect>
+        <text x="${x+(barW-pad*2)/2}" y="${h-6}" font-size="9" fill="#9c93b5" text-anchor="middle">${dd}</text>
+        <title>${r.day}: ${val} phút, quiz ${r.quiz_correct}/${r.quiz_attempts}</title>`;
+    }).join('');
+    return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;">${bars}</svg>`;
+  }
+
+  async function openStudentDetail(studentId, name, avatar){
+    document.getElementById('hs_detailCard').style.display = 'block';
+    document.getElementById('hs_detailTitle').textContent = `${avatar} Chi tiết — ${name}`;
+    const body = document.getElementById('hs_detailBody');
+    body.innerHTML = '<p class="msg">Đang tải...</p>';
+    document.getElementById('hs_detailCard').scrollIntoView({behavior:'smooth', block:'start'});
+
+    const [progress, wrongQs, activity] = await Promise.all([
+      rpc('admin_get_student_stage_progress', {p_password: adminPassword, p_student_id: studentId}),
+      rpc('admin_get_student_wrong_questions', {p_password: adminPassword, p_student_id: studentId, p_limit: 8}),
+      rpc('admin_get_student_activity_daily', {p_password: adminPassword, p_student_id: studentId, p_days: 14}),
+    ]);
+    if(progress && progress.message){ body.innerHTML = '<p class="msg err">❌ Sai mật khẩu quản trị.</p>'; return; }
+
+    const stageTableHtml = `
+      <p class="msg" style="font-weight:700;color:var(--ink,#1e1b4b);">📚 Tiến độ theo từng chặng</p>
+      <table class="rpt-table">
+        <thead><tr><th>Chặng</th><th>Trạng thái</th><th>Điểm Ngữ pháp</th><th>Điểm Từ vựng</th></tr></thead>
+        <tbody>
+          ${(progress||[]).map(p => `
+            <tr>
+              <td>Chặng ${p.stage_order} — ${p.stage_title}</td>
+              <td>${p.status ? (STAGE_STATUS_LABEL[p.status]||p.status) : '<span style="color:var(--muted);">🔒 Chưa mở</span>'}</td>
+              <td>${scoreCell(p.grammar_score, p.grammar_total, p.grammar_pct)}</td>
+              <td>${scoreCell(p.vocab_score, p.vocab_total, p.vocab_pct)}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+
+    const wrongHtml = `
+      <p class="msg" style="font-weight:700;color:var(--ink,#1e1b4b);margin-top:18px;">⚠️ Câu hay sai nhất của ${name}</p>
+      ${(wrongQs && wrongQs.length) ? wrongQs.map(r => `
+        <div class="qlist-item" style="flex-direction:column;align-items:flex-start;">
+          <div class="qtext"><strong>${r.stage_title}</strong> · ${r.quiz_type==='grammar'?'Ngữ pháp':'Từ vựng'}<br>${r.question}</div>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:4px;">
+            Sai ${r.wrong_count}/${r.total_count} lượt (${r.wrong_rate}%)
+            <div class="wrong-bar-track"><div class="wrong-bar-fill" style="width:${r.wrong_rate}%;"></div></div>
+          </div>
+        </div>`).join('') : '<p class="msg">Chưa có câu nào sai — hoặc chưa làm đủ quiz để thống kê.</p>'}`;
+
+    const chartHtml = `
+      <p class="msg" style="font-weight:700;color:var(--ink,#1e1b4b);margin-top:18px;">📈 Hoạt động 14 ngày gần nhất</p>
+      <div style="background:#faf9ff;border-radius:12px;padding:12px;">
+        ${renderActivityChart(activity||[])}
+        <p class="msg" style="font-size:.75rem;">Mỗi cột là số phút học trong ngày — cột tím đậm là ngày có làm quiz. Di chuột vào cột để xem chi tiết.</p>
+      </div>`;
+
+    body.innerHTML = stageTableHtml + wrongHtml + chartHtml;
+  }
+
+  function closeStudentDetail(){
+    document.getElementById('hs_detailCard').style.display = 'none';
   }
 
   async function loadWrongQuestions(){

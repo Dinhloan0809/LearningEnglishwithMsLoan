@@ -32,6 +32,7 @@
   .face img{width:100px;height:100px;object-fit:cover;border-radius:16px;margin-bottom:12px;}
   .face .emoji{font-size:3.4rem;margin-bottom:10px;}
   .face .word{font-family:'Baloo 2';font-weight:800;font-size:1.5rem;color:var(--primary-dark);}
+  .face .phonetic{font-size:.95rem;color:#9c93b5;font-style:italic;margin-top:-6px;margin-bottom:4px;}
   .face .meaning{font-size:1.1rem;font-weight:700;margin-bottom:10px;color:var(--pink);}
   .face .example{font-size:.86rem;font-style:italic;color:#5a5177;}
   .face .hint{position:absolute;bottom:12px;font-size:.68rem;color:var(--muted);font-weight:600;}
@@ -125,6 +126,7 @@
           <div class="face front">
             ${v.image_url ? `<img src="${v.image_url}">` : `<div class="emoji">${v.icon||'❓'}</div>`}
             <div class="word">${v.word||''}</div>
+            ${v.phonetic ? `<div class="phonetic">/${v.phonetic.replace(/^\/|\/$/g,'')}/</div>` : ''}
             <button class="speak-btn" onclick="speak('${(v.word||'').replace(/'/g,"\\'")}', event)">🔊</button>
             <div class="hint">👆 Bấm để xem nghĩa</div>
           </div>
